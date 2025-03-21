@@ -1,0 +1,27 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "prisma": "prisma",
+    "db:push": "prisma db push",
+    "db:seed": "ts-node prisma/seed.ts",
+    "cypress": "cypress open"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.6.1",
+    "next": "13.5.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.12",
+    "cypress": "^13.6.3",
+    "prisma": "^5.6.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
