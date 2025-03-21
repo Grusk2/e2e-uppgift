@@ -8,8 +8,17 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String
+  champions Champion[]
+}
+
+model Champion {
+  id        Int     @id @default(autoincrement())
+  name      String
+  rating    Int
+  comment   String?
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
 }
