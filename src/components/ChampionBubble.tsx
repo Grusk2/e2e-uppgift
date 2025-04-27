@@ -15,14 +15,7 @@ export default function ChampionBubble({ champion }: ChampionProps) {
       <img
         src={`https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion/${champion.image.full}`}
         alt={champion.name}
-        style={{
-          width: "120px",
-          height: "120px",
-          borderRadius: "50%",
-          objectFit: "cover",
-          marginBottom: "0.5rem",
-        }}
       />
     </div>
-  )
+  );
 }

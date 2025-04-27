@@ -1,9 +1,11 @@
 import React from "react";
-import BubbleUI from "react-bubble-ui";
-import "react-bubble-ui/dist/index.css"; // Importera Bubble UI stilar
+import dynamic from "next/dynamic";
+import "react-bubble-ui/dist/index.css"; // Import Bubble UI styles
+
+// Fix: Dynamically import BubbleUI
+const BubbleUI = dynamic(() => import("react-bubble-ui").then(mod => mod.default), { ssr: false });
 
 export default function Home() {
-  // BubbleUI options
   const options = {
     size: 120,
     minSize: 40,
@@ -19,7 +21,6 @@ export default function Home() {
     gravitation: 10
   };
 
-  // BubbleUI children
   const children = [
     <div className="bubble-item" key="1">
       <img
@@ -35,7 +36,7 @@ export default function Home() {
         className="bubble-img"
       />
     </div>
-    // Lägg till fler bubble items här om du vill
+    // Add more items here if you want
   ];
 
   return (
