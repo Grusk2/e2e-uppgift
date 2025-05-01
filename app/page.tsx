@@ -1,7 +1,5 @@
-"use client";
+import ChampionSelect from "../src/components/ChampionSelect";
 
-import ChampionSelect from "../src/components//ChampionSelect";
-
-export default function HomePage() {
+export default function Home() {
   return <ChampionSelect />;
 }
