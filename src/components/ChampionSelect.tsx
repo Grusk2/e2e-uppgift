@@ -3,12 +3,8 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import "react-bubble-ui/dist/index.css";
-import ChampionBubble from "../components/ChampionBubble";
+import ChampionBubble from "./ChampionBubble"; // adjust path if needed
 import styles from "../styles/ChampionSelect.module.css";
-
-const BubbleImport = dynamic(() => import("react-bubble-ui").then((mod) => mod.default), {
-  ssr: false,
-});
 
 type Champion = {
   id: string;
@@ -24,11 +20,12 @@ export default function ChampionSelect() {
   const [savedChampions, setSavedChampions] = useState<string[]>([]);
   const [topFavorites, setTopFavorites] = useState<TopChampion[]>([]);
 
-
   useEffect(() => {
     const fetchChampions = async () => {
       const version = "14.6.1";
-      const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`);
+      const res = await fetch(
+        `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`
+      );
       const data = await res.json();
       const championArray = Object.values(data.data) as Champion[];
       setChampions(championArray);
@@ -37,12 +34,10 @@ export default function ChampionSelect() {
     const fetchFavorites = async () => {
       const res = await fetch("/api/favorites");
       const data = await res.json();
-
       if (!Array.isArray(data)) {
         console.error("Expected array but got:", data);
         return;
       }
-
       const names = data.map((champ: any) => champ.name);
       setSavedChampions(names);
     };
@@ -53,11 +48,10 @@ export default function ChampionSelect() {
 
   useEffect(() => {
     const fetchTop = async () => {
-      const res = await fetch("/api/top"); // 👈 ändrat från /favorites/top
+      const res = await fetch("/api/top");
       const data = await res.json();
       setTopFavorites(data.map((c: any) => ({ name: c.name, rating: c.rating })));
     };
-    
 
     fetchTop();
   }, [savedChampions]);
@@ -68,33 +62,34 @@ export default function ChampionSelect() {
       if (typeof rating === "number") {
         payload.rating = rating;
       }
-  
+
       const res = await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-  
+
       if (!res.ok) {
         const text = await res.text();
         console.error("API error response:", text);
         return;
       }
-  
+
       const result = await res.json();
-  
+
       setSavedChampions((prev) =>
         result.removed
           ? prev.filter((n) => n !== result.name)
-          : [...prev, result.name]
+          : [...new Set([...prev, result.name])]
       );
     } catch (error) {
       console.error("Fetch failed:", error);
     }
   };
-  
-  
-  
+
+  const BubbleImport = dynamic(() => import("react-bubble-ui").then((mod) => mod.default), {
+    ssr: false,
+  });
 
   const options = {
     size: 140,
@@ -114,6 +109,16 @@ export default function ChampionSelect() {
   return (
     <main className={styles.pageContainer}>
       <h1 className={styles.title}>Select Your Champion</h1>
+      <div className={styles.guide}>
+        <p><strong>Hur fungerar det?</strong></p>
+        <ul>
+          <li>🖱️ Scrolla för att se fler champions (upp & ner)</li>
+          <li>⇧ + 🖱️ Scroll = scrolla i sidled</li>
+          <li>⭐ Klicka en champion för att lägga till som favorit</li>
+          <li>🥇 Klicka igen för att öppna meny och sätta favoritnivå</li>
+          <li>❌ Klicka på krysset för att ta bort favoriten</li>
+        </ul>
+      </div>
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <BubbleImport options={options} className={styles.bubbleUI}>
           {champions.map((champ) => (

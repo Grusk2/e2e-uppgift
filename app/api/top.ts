@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../src/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const DUMMY_USER_ID = 1;
