@@ -8,13 +8,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const top = await prisma.champion.findMany({
-      where: { userId: DUMMY_USER_ID },
-      orderBy: { rating: "desc" },
-      take: 3,
-    });
+        where: {
+          userId: DUMMY_USER_ID,
+          rating: { not: null },
+        },
+        orderBy: { rating: "desc" }, // 3 → 🥇 först
+        take: 3,
+      });
+      
+
     return res.status(200).json(top);
-  } catch (err) {
+  } catch (err: any) {
     console.error("Failed to fetch top champions", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 }

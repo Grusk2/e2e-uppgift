@@ -17,7 +17,7 @@ model User {
 model Champion {
   id        Int     @id @default(autoincrement())
   name      String
-  rating    Int
+  rating    Int?
   comment   String?
   userId    Int
   user      User    @relation(fields: [userId], references: [id])

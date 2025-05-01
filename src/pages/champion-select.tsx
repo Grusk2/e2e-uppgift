@@ -17,10 +17,13 @@ type Champion = {
   image: { full: string };
 };
 
+type TopChampion = { name: string; rating: number };
+
 export default function ChampionSelect() {
   const [champions, setChampions] = useState<Champion[]>([]);
   const [savedChampions, setSavedChampions] = useState<string[]>([]);
-  const [topFavorites, setTopFavorites] = useState<string[]>([]);
+  const [topFavorites, setTopFavorites] = useState<TopChampion[]>([]);
+
 
   useEffect(() => {
     const fetchChampions = async () => {
@@ -52,19 +55,24 @@ export default function ChampionSelect() {
     const fetchTop = async () => {
       const res = await fetch("/api/top"); // 👈 ändrat från /favorites/top
       const data = await res.json();
-      setTopFavorites(data.map((c: any) => c.name));
+      setTopFavorites(data.map((c: any) => ({ name: c.name, rating: c.rating })));
     };
     
 
     fetchTop();
   }, [savedChampions]);
 
-  const handleSave = async (champion: Champion) => {
+  const handleSave = async (champion: Champion, rating?: number) => {
     try {
+      const payload: { name: string; rating?: number } = { name: champion.name };
+      if (typeof rating === "number") {
+        payload.rating = rating;
+      }
+  
       const res = await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: champion.name }),
+        body: JSON.stringify(payload),
       });
   
       if (!res.ok) {
@@ -74,7 +82,6 @@ export default function ChampionSelect() {
       }
   
       const result = await res.json();
-      console.log("Result:", result);
   
       setSavedChampions((prev) =>
         result.removed
@@ -85,6 +92,8 @@ export default function ChampionSelect() {
       console.error("Fetch failed:", error);
     }
   };
+  
+  
   
 
   const options = {
