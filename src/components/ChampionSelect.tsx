@@ -100,7 +100,7 @@ export default function ChampionSelect() {
     minSize: 130,
     gutter: 3,
     provideProps: true,
-    numCols: 10,
+    numCols: 12,
     fringeWidth: 120,
     yRadius: 300,
     xRadius: 300,
