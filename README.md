@@ -36,9 +36,12 @@ $ git clone https://github.com/ditt-anvandar-namn/league-champion-favs.git
 $ cd league-champion-favs
 
 # Installera beroenden
-$ npm install
+$ npm install --legacy-peer-deps
+
+#pga react-bubble-ui
 
 # Skapa en .env-fil med ev. databas-url om relevant
+DATABASE_URL="postgresql://postgres:HquwNwcSHQpMkFtusEjXAVnrcDLXboGB@trolley.proxy.rlwy.net:37774/railway"
 ```
 
 ## 🌐 Starta projektet
