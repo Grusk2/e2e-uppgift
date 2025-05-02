@@ -1,10 +1,8 @@
-import { defineConfig } from 'cypress'
+import { defineConfig } from "cypress";
 
 export default defineConfig({
   e2e: {
-    baseUrl: 'http://localhost:3000',
-    setupNodeEvents(on, config) {
-      // configure plugins here
-    },
+    baseUrl: "http://localhost:3000",
+    supportFile: "cypress/support/e2e.ts",
   },
-})
+});

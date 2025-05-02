@@ -32,7 +32,7 @@ export default function ChampionBubble({
     if (!isSaved) {
       onSave(champion);
     } else {
-      setShowPopup(!showPopup); // visa meny för medalj / ta bort
+      setShowPopup((prev) => !prev);
     }
   };
 
@@ -42,7 +42,7 @@ export default function ChampionBubble({
   };
 
   const handleRemove = () => {
-    onSave(champion);
+    onSave(champion); // This will remove the favorite and clear medal
     setShowPopup(false);
   };
 
@@ -54,18 +54,15 @@ export default function ChampionBubble({
     return "";
   };
 
-  // 👇 Stänger popup om man klickar utanför
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
         setShowPopup(false);
       }
     };
-
     if (showPopup) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -73,27 +70,44 @@ export default function ChampionBubble({
 
   return (
     <div
+      data-cy="champion-bubble"
       className={`${styles.childComponent} ${getOutlineClass()}`}
+      data-medal={medal ?? "none"}
+      data-saved={isSaved}
       onClick={toggleFavorite}
       style={{ position: "relative", cursor: "pointer" }}
     >
-      {isSaved && <div className={styles.star}>⭐</div>}
-      {medal === 3 && <div className={styles.medal}>🥇</div>}
-      {medal === 2 && <div className={styles.medal}>🥈</div>}
-      {medal === 1 && <div className={styles.medal}>🥉</div>}
+      {isSaved && <div className={styles.star} data-cy="star">⭐</div>}
+
+      {medal && (
+        <div className={styles.medal} data-cy="medal" data-medal={medal}>
+          {medal === 3 ? "🥇" : medal === 2 ? "🥈" : "🥉"}
+        </div>
+      )}
 
       {showPopup && (
         <div
           ref={popupRef}
           className={styles.ratingPopup}
+          data-cy="rating-popup"
           onClick={(e) => e.stopPropagation()}
         >
           {[3, 2, 1].map((rating) => (
-            <button key={rating} type="button" onClick={() => handleRate(rating)}>
+            <button
+              key={rating}
+              type="button"
+              data-cy={`rate-${rating}`}
+              onClick={() => handleRate(rating)}
+            >
               {rating === 3 ? "🥇" : rating === 2 ? "🥈" : "🥉"}
             </button>
           ))}
-          <button type="button" onClick={handleRemove} className={styles.removeButton}>
+          <button
+            type="button"
+            data-cy="remove-button"
+            className={styles.removeButton}
+            onClick={handleRemove}
+          >
             ❌
           </button>
         </div>

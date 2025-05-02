@@ -6,7 +6,6 @@ import "react-bubble-ui/dist/index.css";
 import ChampionBubble from "./ChampionBubble";
 import styles from "../styles/ChampionSelect.module.css";
 
-// ✅ Flyttad utanför komponenten – viktigt!
 const BubbleImport = dynamic(
   () => import("react-bubble-ui").then((mod) => mod.default),
   {
@@ -58,28 +57,6 @@ export default function ChampionSelect() {
   const handleSave = async (champion: Champion, rating?: number) => {
     const name = champion.name;
 
-    // Optimistisk uppdatering
-    setSavedChampions((prev) => {
-      const exists = prev.includes(name);
-      if (rating === undefined) {
-        return exists ? prev.filter((n) => n !== name) : [...prev, name];
-      }
-      return exists ? prev : [...prev, name];
-    });
-
-    setTopFavorites((prev) => {
-      if (typeof rating === "number") {
-        // Ta bort eventuell champion med samma rating
-        const filtered = prev.filter(
-          (c) => c.rating !== rating && c.name !== name
-        );
-        return [...filtered, { name, rating }];
-      } else {
-        // Ingen rating => ta bort från topFavorites
-        return prev.filter((c) => c.name !== name);
-      }
-    });
-
     try {
       const res = await fetch("/api/favorites", {
         method: "POST",
@@ -89,7 +66,29 @@ export default function ChampionSelect() {
 
       if (!res.ok) {
         console.error("Server responded with error:", await res.text());
+        return;
       }
+
+      // Uppdatera favoriter
+      setSavedChampions((prev) => {
+        const exists = prev.includes(name);
+        if (rating === undefined) {
+          return exists ? prev.filter((n) => n !== name) : [...prev, name];
+        }
+        return exists ? prev : [...prev, name];
+      });
+
+      // Uppdatera medaljer
+      setTopFavorites((prev) => {
+        if (typeof rating === "number") {
+          const filtered = prev.filter(
+            (c) => c.rating !== rating && c.name !== name
+          );
+          return [...filtered, { name, rating }];
+        } else {
+          return prev.filter((c) => c.name !== name);
+        }
+      });
     } catch (err) {
       console.error("Request failed:", err);
     }
@@ -111,7 +110,7 @@ export default function ChampionSelect() {
   };
 
   return (
-    <main className={styles.pageContainer}>
+    <main className={styles.pageContainer} data-cy="champion-select-page">
       <div className={styles.guide}>
         {[
           { icon: "🖱️", text: "Scrolla för fler champions" },
@@ -129,15 +128,20 @@ export default function ChampionSelect() {
 
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <BubbleImport options={options} className={styles.bubbleUI}>
-          {champions.map((champ) => (
-            <ChampionBubble
-              key={champ.id}
-              champion={champ}
-              savedIds={savedChampions}
-              topFavorites={topFavorites}
-              onSave={handleSave}
-            />
-          ))}
+          {champions.map((champ) => {
+            const isSaved = savedChampions.includes(champ.name);
+            const medal = topFavorites.find((c) => c.name === champ.name)?.rating ?? "none";
+
+            return (
+              <ChampionBubble
+                key={`${champ.id}-${isSaved}-${medal}`}
+                champion={champ}
+                savedIds={savedChampions}
+                topFavorites={topFavorites}
+                onSave={handleSave}
+              />
+            );
+          })}
         </BubbleImport>
       </div>
     </main>
