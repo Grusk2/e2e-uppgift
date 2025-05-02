@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST() {
   try {
-    await prisma.champion.deleteMany({}); // Lägg till fler om du har fler tabeller
+    await prisma.champion.deleteMany({});
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to reset test DB", error);

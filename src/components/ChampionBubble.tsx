@@ -42,7 +42,7 @@ export default function ChampionBubble({
   };
 
   const handleRemove = () => {
-    onSave(champion); // This will remove the favorite and clear medal
+    onSave(champion);
     setShowPopup(false);
   };
 

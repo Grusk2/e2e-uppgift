@@ -1,4 +1,4 @@
-import "../src/styles/globals.css"; // ✅ Endast global CSS här
+import "../src/styles/globals.css";
 
 export const metadata = {
   title: "League Favorite Picker",

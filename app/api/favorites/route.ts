@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../src/lib/prisma"; // justera vägen om behövs
+import { prisma } from "../../../src/lib/prisma"; 
 
 const DUMMY_USER_ID = 1;
 
