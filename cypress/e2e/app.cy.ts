@@ -1,16 +1,18 @@
 describe("Champion bubble interactions", () => {
   const waitForSaved = () =>
-    cy.get('[data-cy="champion-bubble"]').first().should(($el) => {
-      expect($el.attr("data-saved")).to.equal("true");
-    });
+    cy.get('[data-cy="champion-bubble"]', { timeout: 8000 })
+      .first()
+      .should("have.attr", "data-saved", "true");
 
   const waitForNotSaved = () =>
-    cy.get('[data-cy="champion-bubble"]').first().should(($el) => {
-      expect($el.attr("data-saved")).to.equal("false");
-    });
+    cy.get('[data-cy="champion-bubble"]', { timeout: 8000 })
+      .first()
+      .should("have.attr", "data-saved", "false");
 
-  const waitForPopup = () =>
-    cy.get('[data-cy="rating-popup"]', { timeout: 8000 }).should("exist").and("be.visible");
+  const waitForPopup = () => {
+    cy.get('[data-cy="rating-popup"]', { timeout: 8000 }).should("exist");
+    cy.get('[data-cy="rating-popup"]').should("be.visible");
+  };
 
   beforeEach(() => {
     cy.request("POST", "/api/test/reset");
@@ -56,17 +58,13 @@ describe("Champion bubble interactions", () => {
 
   it("should only allow one champion to have each medal type", () => {
     cy.get('[data-cy="champion-bubble"]').eq(0).click();
-    cy.get('[data-cy="champion-bubble"]').eq(0).should(($el) => {
-      expect($el.attr("data-saved")).to.equal("true");
-    });
+    cy.get('[data-cy="champion-bubble"]').eq(0).should("have.attr", "data-saved", "true");
     cy.get('[data-cy="champion-bubble"]').eq(0).click();
     waitForPopup();
     cy.get('[data-cy="rate-3"]').click();
 
     cy.get('[data-cy="champion-bubble"]').eq(1).click();
-    cy.get('[data-cy="champion-bubble"]').eq(1).should(($el) => {
-      expect($el.attr("data-saved")).to.equal("true");
-    });
+    cy.get('[data-cy="champion-bubble"]').eq(1).should("have.attr", "data-saved", "true");
     cy.get('[data-cy="champion-bubble"]').eq(1).click();
     waitForPopup();
     cy.get('[data-cy="rate-3"]').click();
@@ -86,7 +84,6 @@ describe("Champion bubble interactions", () => {
   it("should apply outline based on medal type or favorite status", () => {
     cy.get('[data-cy="champion-bubble"]').first().click();
     waitForSaved();
-
     cy.get('[data-cy="champion-bubble"]').first().click();
     waitForPopup();
     cy.get('[data-cy="rate-2"]').click();

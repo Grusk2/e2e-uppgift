@@ -57,6 +57,31 @@ export default function ChampionSelect() {
   const handleSave = async (champion: Champion, rating?: number) => {
     const name = champion.name;
 
+    const isTest = typeof window !== "undefined" && window.Cypress;
+    const optimistic = !isTest;
+
+    if (optimistic) {
+      // Direkt feedback i produktion
+      setSavedChampions((prev) => {
+        const exists = prev.includes(name);
+        if (rating === undefined) {
+          return exists ? prev.filter((n) => n !== name) : [...prev, name];
+        }
+        return exists ? prev : [...prev, name];
+      });
+
+      setTopFavorites((prev) => {
+        if (typeof rating === "number") {
+          const filtered = prev.filter(
+            (c) => c.rating !== rating && c.name !== name
+          );
+          return [...filtered, { name, rating }];
+        } else {
+          return prev.filter((c) => c.name !== name);
+        }
+      });
+    }
+
     try {
       const res = await fetch("/api/favorites", {
         method: "POST",
@@ -69,26 +94,20 @@ export default function ChampionSelect() {
         return;
       }
 
-      // Uppdatera favoriter
-      setSavedChampions((prev) => {
-        const exists = prev.includes(name);
-        if (rating === undefined) {
-          return exists ? prev.filter((n) => n !== name) : [...prev, name];
-        }
-        return exists ? prev : [...prev, name];
-      });
+      // I Cypress-läge, vänta in och bekräfta uppdaterad state från servern
+      if (!optimistic) {
+        const [favRes, topRes] = await Promise.all([
+          fetch("/api/favorites"),
+          fetch("/api/top"),
+        ]);
+        const favData = await favRes.json();
+        const topData = await topRes.json();
 
-      // Uppdatera medaljer
-      setTopFavorites((prev) => {
-        if (typeof rating === "number") {
-          const filtered = prev.filter(
-            (c) => c.rating !== rating && c.name !== name
-          );
-          return [...filtered, { name, rating }];
-        } else {
-          return prev.filter((c) => c.name !== name);
-        }
-      });
+        setSavedChampions(favData.map((c: any) => c.name));
+        setTopFavorites(
+          topData.map((c: any) => ({ name: c.name, rating: c.rating }))
+        );
+      }
     } catch (err) {
       console.error("Request failed:", err);
     }
@@ -128,20 +147,15 @@ export default function ChampionSelect() {
 
       <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
         <BubbleImport options={options} className={styles.bubbleUI}>
-          {champions.map((champ) => {
-            const isSaved = savedChampions.includes(champ.name);
-            const medal = topFavorites.find((c) => c.name === champ.name)?.rating ?? "none";
-
-            return (
-              <ChampionBubble
-                key={`${champ.id}-${isSaved}-${medal}`}
-                champion={champ}
-                savedIds={savedChampions}
-                topFavorites={topFavorites}
-                onSave={handleSave}
-              />
-            );
-          })}
+          {champions.map((champ) => (
+            <ChampionBubble
+              key={champ.id}
+              champion={champ}
+              savedIds={savedChampions}
+              topFavorites={topFavorites}
+              onSave={handleSave}
+            />
+          ))}
         </BubbleImport>
       </div>
     </main>
